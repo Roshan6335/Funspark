@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FunSpark - Ultimate Interactive Gaming Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .game-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            background: #2d5a27;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .city-cell {
+            width: 30px;
+            height: 30px;
+            background: #4ade80;
+            border: 1px solid #16a34a;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .city-cell:hover {
+            background: #22d3ee;
+        }
+        
+        .city-cell.building {
+            background: #6b7280;
+        }
+        
+        .city-cell.road {
+            background: #374151;
+        }
+        
+        .timeline {
+            position: relative;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .timeline-item {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .timeline-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.02);
+        }
+        
+        .pet-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .pet-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .pet-card:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+        
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin: 20px 0;
+        }
+        
+        .music-button {
+            height: 40px;
+            background: #4f46e5;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .music-button:hover {
+            background: #6366f1;
+            transform: scale(1.05);
+        }
+        
+        .music-button.active {
+            background: #f59e0b;
+        }
+        
+        .chatbot-message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background: #3b82f6;
+            color: white;
+            margin-left: auto;
+        }
+        
+        .bot-message {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+        }
+        
+        .achievement-badge {
+            display: inline-block;
+            background: #f59e0b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .city-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .city-cell {
+                width: 25px;
+                height: 25px;
+            }
+            
+            .music-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <!-- Navigation -->
+    <nav class="glass p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-gamepad text-2xl"></i>
+                <h1 class="text-2xl font-bold">FunSpark</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="showTab('dashboard')" class="px-4 py-2 rounded hover:bg-white hover:bg-opacity-20 transition">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                </button>
+                <button onclick="showTab('games')" class="px-4 py-2 rounded hover:bg-white hover:bg-opacity-20 transition">
+                    <i class="fas fa-gamepad mr-2"></i>Games
+                </button>
+                <button onclick="showTab('leaderboard')" class="px-4 py-2 rounded hover:bg-white hover:bg-opacity-20 transition">
+                    <i class="fas fa-trophy mr-2"></i>Leaderboard
+                </button>
+                <button onclick="showTab('profile')" class="px-4 py-2 rounded hover:bg-white hover:bg-opacity-20 transition">
+                    <i class="fas fa-user mr-2"></i>Profile
+                </button>
+                <button onclick="toggleTheme()" class="p-2 rounded hover:bg-white hover:bg-opacity-20 transition">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+        <div class="container mx-auto p-6">
+            <h2 class="text-3xl font-bold mb-6">Welcome to FunSpark Dashboard</h2>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="glass p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm opacity-80">Total Playtime</p>
+                            <p class="text-2xl font-bold" id="total-playtime">0h 0m</p>
+                        </div>
+                        <i class="fas fa-clock text-3xl opacity-50"></i>
+                    </div>
+                </div>
+                
+                <div class="glass p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm opacity-80">Games Played</p>
+                            <p class="text-2xl font-bold" id="games-played">0</p>
+                        </div>
+                        <i class="fas fa-gamepad text-3xl opacity-50"></i>
+                    </div>
+                </div>
+                
+                <div class="glass p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm opacity-80">Achievements</p>
+                            <p class="text-2xl font-bold" id="achievements-count">0</p>
+                        </div>
+                        <i class="fas fa-trophy text-3xl opacity-50"></i>
+                    </div>
+                </div>
+                
+                <div class="glass p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm opacity-80">Level</p>
+                            <p class="text-2xl font-bold" id="user-level">1</p>
+                        </div>
+                        <i class="fas fa-star text-3xl opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="glass p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">Weekly Activity</h3>
+                    <canvas id="activityChart"></canvas>
+                </div>
+                
+                <div class="glass p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">Favorite Games</h3>
+                    <canvas id="gamesChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Recent Activity & Achievements -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">Recent Activity</h3>
+                    <div id="recent-activity"></div>
+                </div>
+                
+                <div class="glass p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">Recent Achievements</h3>
+                    <div id="recent-achievements"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Games Tab -->
+    <div id="games" class="tab-content">
+        <div class="container mx-auto p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Games Hub</h2>
+                <div class="flex space-x-4">
+                    <input type="text" placeholder="Search games..." class="px-4 py-2 rounded bg-white bg-opacity-20 text-white placeholder-gray-300" id="game-search">
+                    <select class="px-4 py-2 rounded bg-white bg-opacity-20 text-white" id="game-filter">
+                        <option value="all">All Categories</option>
+                        <option value="simulation">Simulation</option>
+                        <option value="adventure">Adventure</option>
+                        <option value="creative">Creative</option>
+                        <option value="puzzle">Puzzle</option>
+                        <option value="social">Social</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Featured Games -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-semibold mb-4">🔥 New Games</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6" id="new-games-grid">
+                    <!-- New games will be populated here -->
+                </div>
+            </div>
+            
+            <!-- All Games -->
+            <div>
+                <h3 class="text-2xl font-semibold mb-4">🎮 All Games</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="games-grid">
+                    <!-- Games will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Modal -->
+    <div id="game-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="glass rounded-lg max-w-4xl w-full max-h-full overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold" id="modal-title"></h3>
+                    <button onclick="closeGameModal()" class="text-2xl hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="modal-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Tab -->
+    <div id="leaderboard" class="tab-content">
+        <div class="container mx-auto p-6">
+            <h2 class="text-3xl font-bold mb-6">🏆 Global Leaderboard</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">Top Players</h3>
+                    <div id="top-players"></div>
+                </div>
+                
+                <div class="glass p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">Game Champions</h3>
+                    <div id="game-champions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div id="profile" class="tab-content">
+        <div class="container mx-auto p-6">
+            <h2 class="text-3xl font-bold mb-6">👤 Your Profile</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="glass p-6 rounded-lg">
+                    <div class="text-center">
+                        <div class="w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <i class="fas fa-user text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold" id="profile-name">FunSpark Player</h3>
+                        <p class="opacity-80">Level <span id="profile-level">1</span></p>
+                        <div class="mt-4">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                            <p class="text-sm mt-2">650/1000 XP to next level</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass p-6 rounded-lg lg:col-span-2">
+                    <h3 class="text-xl font-semibold mb-4">🎖️ Achievements</h3>
+                    <div id="profile-achievements" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+            
+            <div class="mt-6 glass p-6 rounded-lg">
+                <h3 class="text-xl font-semibold mb-4">📊 Game Statistics</h3>
+                <div id="profile-stats"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="notification-text"></span>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let gameState = {
+            currentUser: 'Player1',
+            playtime: 0,
+            gamesPlayed: new Set(),
+            achievements: [],
+            level: 1,
+            xp: 650,
+            favorites: [],
+            recentlyPlayed: [],
+            gameStats: {},
+            currentTheme: 'dark'
+        };
+
+        // Load state from localStorage
+        function loadGameState() {
+            const saved = localStorage.getItem('funspark-state');
+            if (saved) {
+                gameState = { ...gameState, ...JSON.parse(saved) };
+            }
+        }
+
+        // Save state to localStorage
+        function saveGameState() {
+            localStorage.setItem('funspark-state', JSON.stringify(gameState));
+        }
+
+        // Initialize
+        loadGameState();
+
+        // Game definitions
+        const games = [
+            // New Games
+            {
+                id: 'city-builder',
+                title: 'City Builder Simulator',
+                category: 'simulation',
+                description: 'Build and manage your virtual city',
+                icon: 'fas fa-city',
+                isNew: true,
+                difficulty: 'Medium'
+            },
+            {
+                id: 'time-machine',
+                title: 'Time Machine Explorer',
+                category: 'adventure',
+                description: 'Travel through different historical eras',
+                icon: 'fas fa-clock',
+                isNew: true,
+                difficulty: 'Hard'
+            },
+            {
+                id: 'ai-chatbot',
+                title: 'AI Chat Bot Creator',
+                category: 'creative',
+                description: 'Design and train your own AI chatbot',
+                icon: 'fas fa-robot',
+                isNew: true,
+                difficulty: 'Easy'
+            },
+            {
+                id: 'virtual-pets',
+                title: 'Virtual Pet Ecosystem',
+                category: 'social',
+                description: 'Adopt and care for virtual pets',
+                icon: 'fas fa-paw',
+                isNew: true,
+                difficulty: 'Easy'
+            },
+            {
+                id: 'music-composer',
+                title: 'Music Composer Studio',
+                category: 'creative',
+                description: 'Create music with visual interface',
+                icon: 'fas fa-music',
+                isNew: true,
+                difficulty: 'Medium'
+            },
+            // Existing Enhanced Games
+            {
+                id: 'infinite-craft',
+                title: 'Infinite Craft Enhanced',
+                category: 'creative',
+                description: 'Combine elements to create new items',
+                icon: 'fas fa-fire',
+                difficulty: 'Easy'
+            },
+            {
+                id: 'password-challenge',
+                title: 'Password Challenge Pro',
+                category: 'puzzle',
+                description: 'Create the ultimate password',
+                icon: 'fas fa-lock',
+                difficulty: 'Hard'
+            },
+            {
+                id: 'billionaire-spree',
+                title: 'Billionaire Spending Spree',
+                category: 'simulation',
+                description: 'Spend virtual billions on luxury items',
+                icon: 'fas fa-dollar-sign',
+                difficulty: 'Easy'
+            },
+            {
+                id: 'space-elevator',
+                title: 'Space Elevator Builder',
+                category: 'simulation',
+                description: 'Build your elevator to space',
+                icon: 'fas fa-rocket',
+                difficulty: 'Medium'
+            },
+            {
+                id: 'memory-games',
+                title: 'Memory Games Suite',
+                category: 'puzzle',
+                description: 'Test your memory skills',
+                icon: 'fas fa-brain',
+                difficulty: 'Medium'
+            },
+            {
+                id: 'word-games',
+                title: 'Word Games Arena',
+                category: 'puzzle',
+                description: 'Vocabulary and word challenges',
+                icon: 'fas fa-font',
+                difficulty: 'Medium'
+            },
+            {
+                id: 'physics-sandbox',
+                title: 'Physics Sandbox',
+                category: 'creative',
+                description: 'Interactive physics experiments',
+                icon: 'fas fa-atom',
+                difficulty: 'Medium'
+            },
+            {
+                id: 'drawing-suite',
+                title: 'Drawing Games Suite',
+                category: 'creative',
+                description: 'Creative drawing challenges',
+                icon: 'fas fa-paint-brush',
+                difficulty: 'Easy'
+            },
+            {
+                id: 'geography-explorer',
+                title: 'Geography Explorer',
+                category: 'puzzle',
+                description: 'Explore world geography',
+                icon: 'fas fa-globe',
+                difficulty: 'Medium'
+            },
+            {
+                id: 'life-achievement',
+                title: 'Life Achievement Tracker',
+                category: 'social',
+                description: 'Track your life goals and milestones',
+                icon: 'fas fa-list-check',
+                difficulty: 'Easy'
+            }
+        ];
+
+        // Tab management
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'dashboard') {
+                updateDashboard();
+            } else if (tabName === 'games') {
+                renderGames();
+            } else if (tabName === 'leaderboard') {
+                updateLeaderboard();
+            } else if (tabName === 'profile') {
+                updateProfile();
+            }
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            if (gameState.currentTheme === 'dark') {
+                body.classList.add('light-theme');
+                icon.className = 'fas fa-sun';
+                gameState.currentTheme = 'light';
+            } else {
+                body.classList.remove('light-theme');
+                icon.className = 'fas fa-moon';
+                gameState.currentTheme = 'dark';
+            }
+            saveGameState();
+        }
+
+        // Render games
+        function renderGames() {
+            const newGamesGrid = document.getElementById('new-games-grid');
+            const gamesGrid = document.getElementById('games-grid');
+            
+            const newGames = games.filter(game => game.isNew);
+            const allGames = games.filter(game => !game.isNew);
+            
+            newGamesGrid.innerHTML = newGames.map(game => createGameCard(game)).join('');
+            gamesGrid.innerHTML = allGames.map(game => createGameCard(game)).join('');
+        }
+
+        function createGameCard(game) {
+            const isPlayed = gameState.gamesPlayed.has(game.id);
+            const isFavorite = gameState.favorites.includes(game.id);
+            
+            return `
+                <div class="game-card glass p-6 rounded-lg" onclick="openGame('${game.id}')">
+                    <div class="text-center">
+                        <i class="${game.icon} text-4xl mb-4 text-blue-400"></i>
+                        <h3 class="text-lg font-semibold mb-2">${game.title}</h3>
+                        <p class="text-sm opacity-80 mb-3">${game.description}</p>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="px-2 py-1 bg-blue-500 rounded">${game.category}</span>
+                            <span class="px-2 py-1 bg-yellow-500 rounded">${game.difficulty}</span>
+                        </div>
+                        ${isPlayed ? '<div class="mt-2"><i class="fas fa-check text-green-400"></i> Played</div>' : ''}
+                        ${isFavorite ? '<div class="mt-2"><i class="fas fa-heart text-red-400"></i> Favorite</div>' : ''}
+                        ${game.isNew ? '<div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs">NEW!</div>' : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Open game modal
+        function openGame(gameId) {
+            const game = games.find(g => g.id === gameId);
+            if (!game) return;
+            
+            gameState.gamesPlayed.add(gameId);
+            gameState.recentlyPlayed.unshift(gameId);
+            gameState.recentlyPlayed = gameState.recentlyPlayed.slice(0, 10);
+            
+            document.getElementById('modal-title').textContent = game.title;
+            document.getElementById('modal-content').innerHTML = getGameContent(gameId);
+            document.getElementById('game-modal').classList.remove('hidden');
+            
+            // Start game-specific logic
+            initializeGame(gameId);
+            
+            // Add XP and check for achievements
+            addXP(10);
+            checkAchievements();
+            saveGameState();
+        }
+
+        function closeGameModal() {
+            document.getElementById('game-modal').classList.add('hidden');
+        }
+
+        // Game content generators
+        function getGameContent(gameId) {
+            switch(gameId) {
+                case 'city-builder':
+                    return getCityBuilderContent();
+                case 'time-machine':
+                    return getTimeMachineContent();
+                case 'ai-chatbot':
+                    return getAIChatbotContent();
+                case 'virtual-pets':
+                    return getVirtualPetsContent();
+                case 'music-composer':
+                    return getMusicComposerContent();
+                case 'infinite-craft':
+                    return getInfiniteCraftContent();
+                case 'password-challenge':
+                    return getPasswordChallengeContent();
+                case 'billionaire-spree':
+                    return getBillionaireSpreeContent();
+                default:
+                    return `<div class="text-center py-8">
+                        <i class="fas fa-gamepad text-6xl mb-4 opacity-50"></i>
+                        <p class="text-xl">Game coming soon!</p>
+                        <p class="opacity-80 mt-2">This amazing game is currently in development.</p>
+                    </div>`;
+            }
+        }
+
+        // City Builder Game
+        function getCityBuilderContent() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="text-lg font-semibold">City Statistics</h4>
+                            <div class="grid grid-cols-3 gap-4 mt-2">
+                                <div>Population: <span id="city-population">0</span></div>
+                                <div>Money: $<span id="city-money">10000</span></div>
+                                <div>Happiness: <span id="city-happiness">50</span>%</div>
+                            </div>
+                        </div>
+                        <div class="space-x-2">
+                            <button onclick="setCityTool('building')" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">🏢 Building</button>
+                            <button onclick="setCityTool('road')" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">🛣️ Road</button>
+                            <button onclick="setCityTool('park')" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">🌳 Park</button>
+                        </div>
+                    </div>
+                    <div class="city-grid" id="city-grid"></div>
+                    <div class="text-sm opacity-80">
+                        Click on empty land to build. Buildings generate population and money, roads connect areas, parks increase happiness.
+                    </div>
+                </div>
+            `;
+        }
+
+        // Time Machine Game
+        function getTimeMachineContent() {
+            return `
+                <div class="space-y-6">
+                    <div class="text-center">
+                        <h4 class="text-lg font-semibold mb-4">🕰️ Time Machine Explorer</h4>
+                        <p class="mb-4">Current Era: <span id="current-era">Present Day</span></p>
+                    </div>
+                    <div class="timeline" id="timeline">
+                        <div class="timeline-item" onclick="travelToEra('prehistoric')">
+                            <h5 class="font-semibold">🦕 Prehistoric Era (65M BC)</h5>
+                            <p class="text-sm opacity-80">Meet dinosaurs and early life forms</p>
+                        </div>
+                        <div class="timeline-item" onclick="travelToEra('ancient')">
+                            <h5 class="font-semibold">🏛️ Ancient Civilizations (3000 BC)</h5>
+                            <p class="text-sm opacity-80">Visit Egypt, Rome, and Greece</p>
+                        </div>
+                        <div class="timeline-item" onclick="travelToEra('medieval')">
+                            <h5 class="font-semibold">⚔️ Medieval Times (1000 AD)</h5>
+                            <p class="text-sm opacity-80">Knights, castles, and kingdoms</p>
+                        </div>
+                        <div class="timeline-item" onclick="travelToEra('renaissance')">
+                            <h5 class="font-semibold">🎨 Renaissance (1500 AD)</h5>
+                            <p class="text-sm opacity-80">Art, science, and discovery</p>
+                        </div>
+                        <div class="timeline-item" onclick="travelToEra('industrial')">
+                            <h5 class="font-semibold">🏭 Industrial Revolution (1800 AD)</h5>
+                            <p class="text-sm opacity-80">Steam engines and factories</p>
+                        </div>
+                        <div class="timeline-item" onclick="travelToEra('future')">
+                            <h5 class="font-semibold">🚀 Future (2100 AD)</h5>
+                            <p class="text-sm opacity-80">Advanced technology and space travel</p>
+                        </div>
+                    </div>
+                    <div id="era-details" class="glass p-4 rounded-lg"></div>
+                </div>
+            `;
+        }
+
+        // AI Chatbot Creator
+        function getAIChatbotContent() {
+            return `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-4">🤖 Bot Configuration</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Bot Name</label>
+                                    <input type="text" id="bot-name" placeholder="Enter bot name" class="w-full px-3 py-2 bg-white bg-opacity-20 rounded border border-white border-opacity-30 text-white placeholder-gray-300">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Personality</label>
+                                    <select id="bot-personality" class="w-full px-3 py-2 bg-white bg-opacity-20 rounded border border-white border-opacity-30 text-white">
+                                        <option value="friendly">Friendly</option>
+                                        <option value="professional">Professional</option>
+                                        <option value="funny">Funny</option>
+                                        <option value="wise">Wise</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Specialty</label>
+                                    <select id="bot-specialty" class="w-full px-3 py-2 bg-white bg-opacity-20 rounded border border-white border-opacity-30 text-white">
+                                        <option value="general">General Chat</option>
+                                        <option value="tech">Technology</option>
+                                        <option value="creative">Creative Writing</option>
+                                        <option value="educational">Education</option>
+                                    </select>
+                                </div>
+                                <button onclick="createChatbot()" class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Create Bot</button>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-4">💬 Chat Interface</h4>
+                            <div id="chat-messages" class="h-64 overflow-y-auto bg-white bg-opacity-10 rounded p-4 mb-4"></div>
+                            <div class="flex space-x-2">
+                                <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 px-3 py-2 bg-white bg-opacity-20 rounded border border-white border-opacity-30 text-white placeholder-gray-300">
+                                <button onclick="sendMessage()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Virtual Pets Game
+        function getVirtualPetsContent() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-lg font-semibold">🐾 Virtual Pet Ecosystem</h4>
+                        <button onclick="adoptNewPet()" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                            <i class="fas fa-plus mr-2"></i>Adopt New Pet
+                        </button>
+                    </div>
+                    <div class="pet-container" id="pet-container">
+                        <!-- Pets will be populated here -->
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="glass p-4 rounded-lg text-center">
+                            <h5 class="font-semibold mb-2">🍖 Food Supply</h5>
+                            <div class="text-2xl font-bold" id="food-supply">100</div>
+                            <button onclick="buyFood()" class="mt-2 px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700">Buy Food ($10)</button>
+                        </div>
+                        <div class="glass p-4 rounded-lg text-center">
+                            <h5 class="font-semibold mb-2">🎾 Toys</h5>
+                            <div class="text-2xl font-bold" id="toy-count">5</div>
+                            <button onclick="buyToys()" class="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">Buy Toys ($15)</button>
+                        </div>
+                        <div class="glass p-4 rounded-lg text-center">
+                            <h5 class="font-semibold mb-2">💰 Money</h5>
+                            <div class="text-2xl font-bold" id="pet-money">500</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Music Composer Studio
+        function getMusicComposerContent() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-lg font-semibold">🎵 Music Composer Studio</h4>
+                        <div class="space-x-2">
+                            <button onclick="playComposition()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                <i class="fas fa-play mr-2"></i>Play
+                            </button>
+                            <button onclick="stopComposition()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                                <i class="fas fa-stop mr-2"></i>Stop
+                            </button>
+                            <button onclick="clearComposition()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                                <i class="fas fa-trash mr-2"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-semibold mb-2">🎹 Piano</h5>
+                            <div class="music-grid" id="piano-grid"></div>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold mb-2">🥁 Drums</h5>
+                            <div class="music-grid" id="drum-grid"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h5 class="font-semibold mb-2">🎵 Composition</h5>
+                        <div id="composition-display" class="bg-white bg-opacity-10 rounded p-4 min-h-20">
+                            Your composition will appear here...
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm opacity-80">
+                        Click on the buttons above to create your musical composition. Each color represents a different note or sound.
+                    </div>
+                </div>
+            `;
+        }
+
+        // Enhanced Infinite Craft
+        function getInfiniteCraftContent() {
+            return `
+                <div class="space-y-6">
+                    <div class="text-center">
+                        <h4 class="text-lg font-semibold mb-4">🔥 Infinite Craft Enhanced</h4>
+                        <p class="opacity-80 mb-4">Combine elements to create new items. Start with the basic elements!</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-semibold mb-3">🧪 Basic Elements</h5>
+                            <div class="grid grid-cols-2 gap-2" id="basic-elements">
+                                <button onclick="selectElement('Water')" class="craft-element p-3 bg-blue-600 rounded hover:bg-blue-700">💧 Water</button>
+                                <button onclick="selectElement('Fire')" class="craft-element p-3 bg-red-600 rounded hover:bg-red-700">🔥 Fire</button>
+                                <button onclick="selectElement('Earth')" class="craft-element p-3 bg-yellow-700 rounded hover:bg-yellow-800">🌍 Earth</button>
+                                <button onclick="selectElement('Air')" class="craft-element p-3 bg-gray-400 rounded hover:bg-gray-500">💨 Air</button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h5 class="font-semibold mb-3">⚗️ Crafting Area</h5>
+                            <div class="space-y-4">
+                                <div class="flex space-x-2">
+                                    <div class="flex-1 p-3 bg-white bg-opacity-10 rounded text-center" id="craft-slot-1">
+                                        Select Element 1
+                                    </div>
+                                    <div class="text-2xl">+</div>
+                                    <div class="flex-1 p-3 bg-white bg-opacity-10 rounded text-center" id="craft-slot-2">
+                                        Select Element 2
+                                    </div>
+                                </div>
+                                <button onclick="combineElements()" class="w-full px-4 py-3 bg-purple-600 text-white rounded hover:bg-purple-700">
+                                    <i class="fas fa-magic mr-2"></i>Combine
+                                </button>
+                                <div id="craft-result" class="p-3 bg-white bg-opacity-10 rounded text-center">
+                                    Result will appear here
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h5 class="font-semibold mb-3">📦 Your Discoveries (<span id="discovery-count">4</span>)</h5>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="discovered-elements">
+                            <!-- Discovered elements will populate here -->
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Password Challenge Pro
+        function getPasswordChallengeContent() {
+            return `
+                <div class="space-y-6">
+                    <div class="text-center">
+                        <h4 class="text-lg font-semibold mb-4">🔐 Password Challenge Pro</h4>
+                        <p class="opacity-80">Create a password that meets increasingly difficult requirements!</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Your Password:</label>
+                            <input type="text" id="password-input" placeholder="Start typing your password..." class="w-full px-4 py-3 bg-white bg-opacity-20 rounded border border-white border-opacity-30 text-white placeholder-gray-300" oninput="checkPassword()">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h5 class="font-semibold mb-3">📋 Requirements</h5>
+                                <div class="space-y-2" id="password-requirements">
+                                    <!-- Requirements will populate here -->
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h5 class="font-semibold mb-3">📊 Password Strength</h5>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span>Strength</span>
+                                            <span id="strength-percentage">0%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="strength-bar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm opacity-80">
+                                        Length: <span id="password-length">0</span> characters
+                                    </div>
+                                    <div class="text-sm opacity-80">
+                                        Estimated crack time: <span id="crack-time">0 seconds</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button onclick="submitPassword()" class="px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50" id="submit-password" disabled>
+                                Submit Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Billionaire Spending Spree
+        function getBillionaireSpreeContent() {
+            return `
+                <div class="space-y-6">
+                    <div class="text-center">
+                        <h4 class="text-lg font-semibold mb-4">💰 Billionaire Spending Spree</h4>
+                        <div class="text-3xl font-bold">$<span id="remaining-money">100000000000</span></div>
+                        <p class="opacity-80">Money Remaining</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <button onclick="selectBillionaire('gates')" class="p-3 bg-blue-600 rounded hover:bg-blue-700">Bill Gates<br>$100B</button>
+                        <button onclick="selectBillionaire('bezos')" class="p-3 bg-orange-600 rounded hover:bg-orange-700">Jeff Bezos<br>$150B</button>
+                        <button onclick="selectBillionaire('musk')" class="p-3 bg-purple-600 rounded hover:bg-purple-700">Elon Musk<br>$200B</button>
+                        <button onclick="selectBillionaire('buffett')" class="p-3 bg-green-600 rounded hover:bg-green-700">Warren Buffett<br>$120B</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="spending-items">
+                        <!-- Spending items will populate here -->
+                    </div>
+                    
+                    <div class="glass p-4 rounded-lg">
+                        <h5 class="font-semibold mb-2">🛒 Shopping Cart</h5>
+                        <div id="shopping-cart" class="space-y-2">
+                            <p class="text-sm opacity-80">Your purchases will appear here...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Game initialization functions
+        function initializeGame(gameId) {
+            switch(gameId) {
+                case 'city-builder':
+                    initializeCityBuilder();
+                    break;
+                case 'time-machine':
+                    initializeTimeMachine();
+                    break;
+                case 'ai-chatbot':
+                    initializeAIChatbot();
+                    break;
+                case 'virtual-pets':
+                    initializeVirtualPets();
+                    break;
+                case 'music-composer':
+                    initializeMusicComposer();
+                    break;
+                case 'infinite-craft':
+                    initializeInfiniteCraft();
+                    break;
+                case 'password-challenge':
+                    initializePasswordChallenge();
+                    break;
+                case 'billionaire-spree':
+                    initializeBillionaireSpree();
+                    break;
+            }
+        }
+
+        // Game state variables
+        let cityState = {
+            population: 0,
+            money: 10000,
+            happiness: 50,
+            currentTool: 'building',
+            grid: Array(100).fill('empty')
+        };
+
+        let timeMachineState = {
+            currentEra: 'present',
+            visitedEras: []
+        };
+
+        let chatbotState = {
+            botName: 'Assistant',
+            personality: 'friendly',
+            specialty: 'general',
+            messages: []
+        };
+
+        let petState = {
+            pets: [],
+            food: 100,
+            toys: 5,
+            money: 500
+        };
+
+        let musicState = {
+            composition: [],
+            isPlaying: false
+        };
+
+        let craftState = {
+            discovered: ['Water', 'Fire', 'Earth', 'Air'],
+            selectedElements: [null, null],
+            recipes: {
+                'Water+Fire': 'Steam',
+                'Water+Earth': 'Mud',
+                'Fire+Earth': 'Lava',
+                'Fire+Air': 'Energy',
+                'Water+Air': 'Cloud',
+                'Earth+Air': 'Dust',
+                'Steam+Air': 'Rain',
+                'Lava+Water': 'Stone',
+                'Cloud+Cloud': 'Storm'
+            }
+        };
+
+        let passwordState = {
+            requirements: [
+                { text: 'At least 8 characters', check: (p) => p.length >= 8 },
+                { text: 'Contains uppercase letter', check: (p) => /[A-Z]/.test(p) },
+                { text: 'Contains lowercase letter', check: (p) => /[a-z]/.test(p) },
+                { text: 'Contains a number', check: (p) => /\d/.test(p) },
+                { text: 'Contains special character', check: (p) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
+                { text: 'No common passwords', check: (p) => !['password', '12345678', 'qwerty'].includes(p.toLowerCase()) }
+            ]
+        };
+
+        let spendingState = {
+            billionaire: 'gates',
+            remainingMoney: 100000000000,
+            cart: [],
+            items: [
+                { name: 'Coffee', price: 5, icon: '☕' },
+                { name: 'Pizza', price: 15, icon: '🍕' },
+                { name: 'Movie Ticket', price: 20, icon: '🎬' },
+                { name: 'Book', price: 25, icon: '📚' },
+                { name: 'Video Game', price: 60, icon: '🎮' },
+                { name: 'Smartphone', price: 1000, icon: '📱' },
+                { name: 'Laptop', price: 2000, icon: '💻' },
+                { name: 'Car', price: 50000, icon: '🚗' },
+                { name: 'House', price: 500000, icon: '🏠' },
+                { name: 'Private Jet', price: 50000000, icon: '✈️' },
+                { name: 'Yacht', price: 100000000, icon: '🛥️' },
+                { name: 'Island', price: 1000000000, icon: '🏝️' }
+            ]
+        };
+
+        // City Builder functions
+        function initializeCityBuilder() {
+            const grid = document.getElementById('city-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'city-cell';
+                cell.onclick = () => buildInCity(i);
+                grid.appendChild(cell);
+            }
+            updateCityStats();
+        }
+
+        function setCityTool(tool) {
+            cityState.currentTool = tool;
+        }
+
+        function buildInCity(index) {
+            if (cityState.grid[index] !== 'empty') return;
+            
+            const cost = cityState.currentTool === 'building' ? 1000 : cityState.currentTool === 'road' ? 500 : 2000;
+            if (cityState.money < cost) return;
+            
+            cityState.grid[index] = cityState.currentTool;
+            cityState.money -= cost;
+            
+            if (cityState.currentTool === 'building') {
+                cityState.population += 10;
+            } else if (cityState.currentTool === 'park') {
+                cityState.happiness += 5;
+            }
+            
+            const cell = document.querySelectorAll('.city-cell')[index];
+            cell.classList.add(cityState.currentTool);
+            
+            updateCityStats();
+        }
+
+        function updateCityStats() {
+            document.getElementById('city-population').textContent = cityState.population;
+            document.getElementById('city-money').textContent = cityState.money;
+            document.getElementById('city-happiness').textContent = Math.min(100, cityState.happiness);
+        }
+
+        // Time Machine functions
+        function initializeTimeMachine() {
+            travelToEra('present');
+        }
+
+        function travelToEra(era) {
+            timeMachineState.currentEra = era;
+            if (!timeMachineState.visitedEras.includes(era)) {
+                timeMachineState.visitedEras.push(era);
+                addXP(20);
+            }
+            
+            document.getElementById('current-era').textContent = getEraName(era);
+            document.getElementById('era-details').innerHTML = getEraDetails(era);
+        }
+
+        function getEraName(era) {
+            const names = {
+                'prehistoric': 'Prehistoric Era (65M BC)',
+                'ancient': 'Ancient Civilizations (3000 BC)',
+                'medieval': 'Medieval Times (1000 AD)',
+                'renaissance': 'Renaissance (1500 AD)',
+                'industrial': 'Industrial Revolution (1800 AD)',
+                'present': 'Present Day (2024 AD)',
+                'future': 'Future (2100 AD)'
+            };
+            return names[era] || 'Unknown Era';
+        }
+
+        function getEraDetails(era) {
+            const details = {
+                'prehistoric': '🦕 You see massive dinosaurs roaming the earth. The landscape is wild and untamed.',
+                'ancient': '🏛️ You witness the construction of great pyramids and the wisdom of ancient philosophers.',
+                'medieval': '⚔️ Knights in shining armor ride through castle courtyards as merchants sell their wares.',
+                'renaissance': '🎨 Artists create masterpieces while scientists make groundbreaking discoveries.',
+                'industrial': '🏭 Steam engines power new factories as society transforms rapidly.',
+                'present': '💻 Modern technology connects the world as humanity faces new challenges.',
+                'future': '🚀 Advanced AI and space colonies represent humanity\'s next great leap forward.'
+            };
+            return `<p>${details[era] || 'A mysterious time period awaits exploration.'}</p>`;
+        }
+
+        // AI Chatbot functions
+        function initializeAIChatbot() {
+            updateChatInterface();
+        }
+
+        function createChatbot() {
+            const name = document.getElementById('bot-name').value || 'Assistant';
+            const personality = document.getElementById('bot-personality').value;
+            const specialty = document.getElementById('bot-specialty').value;
+            
+            chatbotState.botName = name;
+            chatbotState.personality = personality;
+            chatbotState.specialty = specialty;
+            chatbotState.messages = [];
+            
+            addChatMessage(`Hello! I'm ${name}, your ${personality} ${specialty} assistant. How can I help you today?`, 'bot');
+            showNotification('Chatbot created successfully!');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Simulate bot response
+            setTimeout(() => {
+                const response = generateBotResponse(message);
+                addChatMessage(response, 'bot');
+            }, 1000);
+        }
+
+        function addChatMessage(message, sender) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chatbot-message ${sender}-message`;
+            messageDiv.textContent = message;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            chatbotState.messages.push({ message, sender, timestamp: Date.now() });
+        }
+
+        function generateBotResponse(userMessage) {
+            const responses = {
+                'friendly': [
+                    "That's really interesting! Tell me more about that.",
+                    "I love chatting with you! What else would you like to know?",
+                    "You seem really cool! I'm here to help with anything you need."
+                ],
+                'professional': [
+                    "I understand your inquiry. Let me provide you with accurate information.",
+                    "Thank you for your question. I'll do my best to assist you.",
+                    "I appreciate you reaching out. How may I further assist you today?"
+                ],
+                'funny': [
+                    "Haha, that reminds me of a joke! Why don't scientists trust atoms? Because they make up everything!",
+                    "You know what? I'd tell you a construction joke, but I'm still working on it! 😄",
+                    "That's hilarious! I wish I could laugh, but I'm still figuring out how emotions work!"
+                ],
+                'wise': [
+                    "As the ancient philosophers said, wisdom comes from understanding both questions and answers.",
+                    "In my vast digital experience, I've learned that every question opens a door to new knowledge.",
+                    "Contemplating your words, I find that the journey of learning never truly ends."
+                ]
+            };
+            
+            const personalityResponses = responses[chatbotState.personality];
+            return personalityResponses[Math.floor(Math.random() * personalityResponses.length)];
+        }
+
+        function updateChatInterface() {
+            // Initialize chat interface
+            document.getElementById('chat-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        // Virtual Pets functions
+        function initializeVirtualPets() {
+            if (petState.pets.length === 0) {
+                // Add a starter pet
+                adoptNewPet();
+            }
+            updatePetDisplay();
+        }
+
+        function adoptNewPet() {
+            const petTypes = ['🐶', '🐱', '🐰', '🐹', '🐦', '🐠'];
+            const petNames = ['Buddy', 'Luna', 'Max', 'Bella', 'Charlie', 'Lucy', 'Rocky', 'Daisy'];
+            
+            const newPet = {
+                id: Date.now(),
+                type: petTypes[Math.floor(Math.random() * petTypes.length)],
+                name: petNames[Math.floor(Math.random() * petNames.length)],
+                hunger: 100,
+                happiness: 100,
+                health: 100,
+                age: 0
+            };
+            
+            petState.pets.push(newPet);
+            updatePetDisplay();
+            showNotification(`${newPet.name} has joined your family!`);
+        }
+
+        function updatePetDisplay() {
+            const container = document.getElementById('pet-container');
+            container.innerHTML = petState.pets.map(pet => `
+                <div class="pet-card">
+                    <div class="text-3xl mb-2">${pet.type}</div>
+                    <h6 class="font-semibold">${pet.name}</h6>
+                    <div class="text-xs space-y-1 mt-2">
+                        <div>Hunger: ${pet.hunger}%</div>
+                        <div>Happy: ${pet.happiness}%</div>
+                        <div>Health: ${pet.health}%</div>
+                        <div>Age: ${pet.age} days</div>
+                    </div>
+                    <div class="mt-3 space-x-1">
+                        <button onclick="feedPet(${pet.id})" class="px-2 py-1 bg-green-500 rounded text-xs">Feed</button>
+                        <button onclick="playWithPet(${pet.id})" class="px-2 py-1 bg-blue-500 rounded text-xs">Play</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('food-supply').textContent = petState.food;
+            document.getElementById('toy-count').textContent = petState.toys;
+            document.getElementById('pet-money').textContent = petState.money;
+        }
+
+        function feedPet(petId) {
+            if (petState.food <= 0) return;
+            
+            const pet = petState.pets.find(p => p.id === petId);
+            if (pet && pet.hunger < 100) {
+                pet.hunger = Math.min(100, pet.hunger + 20);
+                pet.health = Math.min(100, pet.health + 5);
+                petState.food--;
+                updatePetDisplay();
+            }
+        }
+
+        function playWithPet(petId) {
+            if (petState.toys <= 0) return;
+            
+            const pet = petState.pets.find(p => p.id === petId);
+            if (pet && pet.happiness < 100) {
+                pet.happiness = Math.min(100, pet.happiness + 25);
+                petState.toys--;
+                updatePetDisplay();
+            }
+        }
+
+        function buyFood() {
+            if (petState.money >= 10) {
+                petState.money -= 10;
+                petState.food += 20;
+                updatePetDisplay();
+                showNotification('Food purchased!');
+            }
+        }
+
+        function buyToys() {
+            if (petState.money >= 15) {
+                petState.money -= 15;
+                petState.toys += 3;
+                updatePetDisplay();
+                showNotification('Toys purchased!');
+            }
+        }
+
+        // Music Composer functions
+        function initializeMusicComposer() {
+            createMusicGrids();
+        }
+
+        function createMusicGrids() {
+            const pianoGrid = document.getElementById('piano-grid');
+            const drumGrid = document.getElementById('drum-grid');
+            
+            pianoGrid.innerHTML = '';
+            drumGrid.innerHTML = '';
+            
+            const pianoNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C2'];
+            const drumSounds = ['Kick', 'Snare', 'Hi-Hat', 'Crash', 'Tom1', 'Tom2', 'Ride', 'Clap'];
+            
+            pianoNotes.forEach((note, index) => {
+                const button = document.createElement('button');
+                button.className = 'music-button';
+                button.textContent = note;
+                button.onclick = () => addToComposition('piano', note);
+                pianoGrid.appendChild(button);
+            });
+            
+            drumSounds.forEach((sound, index) => {
+                const button = document.createElement('button');
+                button.className = 'music-button';
+                button.textContent = sound;
+                button.onclick = () => addToComposition('drum', sound);
+                drumGrid.appendChild(button);
+            });
+        }
+
+        function addToComposition(instrument, sound) {
+            musicState.composition.push({ instrument, sound, timestamp: Date.now() });
+            updateCompositionDisplay();
+        }
+
+        function updateCompositionDisplay() {
+            const display = document.getElementById('composition-display');
+            if (musicState.composition.length === 0) {
+                display.textContent = 'Your composition will appear here...';
+            } else {
+                display.innerHTML = musicState.composition.map((note, index) => 
+                    `<span class="inline-block bg-white bg-opacity-20 rounded px-2 py-1 m-1">${note.instrument}: ${note.sound}</span>`
+                ).join('');
+            }
+        }
+
+        function playComposition() {
+            if (musicState.composition.length === 0) return;
+            
+            musicState.isPlaying = true;
+            showNotification('🎵 Playing your composition!');
+            
+            // Simulate playing for 3 seconds
+            setTimeout(() => {
+                musicState.isPlaying = false;
+                showNotification('🎵 Composition finished!');
+            }, 3000);
+        }
+
+        function stopComposition() {
+            musicState.isPlaying = false;
+            showNotification('🎵 Playback stopped');
+        }
+
+        function clearComposition() {
+            musicState.composition = [];
+            updateCompositionDisplay();
+            showNotification('🎵 Composition cleared');
+        }
+
+        // Infinite Craft functions
+        function initializeInfiniteCraft() {
+            updateDiscoveredElements();
+            updateCraftingSlots();
+        }
+
+        function selectElement(element) {
+            if (craftState.selectedElements[0] === null) {
+                craftState.selectedElements[0] = element;
+            } else if (craftState.selectedElements[1] === null) {
+                craftState.selectedElements[1] = element;
+            } else {
+                craftState.selectedElements[0] = element;
+                craftState.selectedElements[1] = null;
+            }
+            updateCraftingSlots();
+        }
+
+        function updateCraftingSlots() {
+            document.getElementById('craft-slot-1').textContent = craftState.selectedElements[0] || 'Select Element 1';
+            document.getElementById('craft-slot-2').textContent = craftState.selectedElements[1] || 'Select Element 2';
+        }
+
+        function combineElements() {
+            const [elem1, elem2] = craftState.selectedElements;
+            if (!elem1 || !elem2) return;
+            
+            const combo1 = `${elem1}+${elem2}`;
+            const combo2 = `${elem2}+${elem1}`;
+            const result = craftState.recipes[combo1] || craftState.recipes[combo2];
+            
+            if (result) {
+                if (!craftState.discovered.includes(result)) {
+                    craftState.discovered.push(result);
+                    updateDiscoveredElements();
+                    showNotification(`🎉 Discovered: ${result}!`);
+                    addXP(15);
+                }
+                document.getElementById('craft-result').textContent = `✨ ${result}`;
+            } else {
+                document.getElementById('craft-result').textContent = '❌ No combination found';
+            }
+            
+            craftState.selectedElements = [null, null];
+            updateCraftingSlots();
+        }
+
+        function updateDiscoveredElements() {
+            const container = document.getElementById('discovered-elements');
+            container.innerHTML = craftState.discovered.map(element => 
+                `<button onclick="selectElement('${element}')" class="p-2 bg-purple-600 rounded hover:bg-purple-700 text-sm">${element}</button>`
+            ).join('');
+            document.getElementById('discovery-count').textContent = craftState.discovered.length;
+        }
+
+        // Password Challenge functions
+        function initializePasswordChallenge() {
+            updatePasswordRequirements();
+        }
+
+        function checkPassword() {
+            const password = document.getElementById('password-input').value;
+            updatePasswordRequirements(password);
+            updatePasswordStrength(password);
+        }
+
+        function updatePasswordRequirements(password = '') {
+            const container = document.getElementById('password-requirements');
+            container.innerHTML = passwordState.requirements.map(req => {
+                const passed = req.check(password);
+                return `<div class="flex items-center space-x-2">
+                    <i class="fas ${passed ? 'fa-check text-green-400' : 'fa-times text-red-400'}"></i>
+                    <span class="${passed ? 'text-green-400' : 'text-red-400'}">${req.text}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function updatePasswordStrength(password) {
+            const length = password.length;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            
+            let strength = 0;
+            if (length >= 8) strength += 20;
+            if (length >= 12) strength += 10;
+            if (hasUpper) strength += 15;
+            if (hasLower) strength += 15;
+            if (hasNumber) strength += 15;
+            if (hasSpecial) strength += 25;
+            
+            document.getElementById('strength-percentage').textContent = `${strength}%`;
+            document.getElementById('strength-bar').style.width = `${strength}%`;
+            document.getElementById('password-length').textContent = length;
+            
+            const crackTime = calculateCrackTime(password);
+            document.getElementById('crack-time').textContent = crackTime;
+            
+            const allPassed = passwordState.requirements.every(req => req.check(password));
+            document.getElementById('submit-password').disabled = !allPassed;
+        }
+
+        function calculateCrackTime(password) {
+            const length = password.length;
+            if (length < 8) return '< 1 second';
+            if (length < 12) return '< 1 hour';
+            if (length < 16) return '< 1 year';
+            return '> 100 years';
+        }
+
+        function submitPassword() {
+            const password = document.getElementById('password-input').value;
+            const allPassed = passwordState.requirements.every(req => req.check(password));
+            
+            if (allPassed) {
+                showNotification('🎉 Password accepted! Challenge completed!');
+                addXP(50);
+            }
+        }
+
+        // Billionaire Spree functions
+        function initializeBillionaireSpree() {
+            renderSpendingItems();
+            updateShoppingDisplay();
+        }
+
+        function selectBillionaire(billionaire) {
+            const amounts = {
+                'gates': 100000000000,
+                'bezos': 150000000000,
+                'musk': 200000000000,
+                'buffett': 120000000000
+            };
+            
+            spendingState.billionaire = billionaire;
+            spendingState.remainingMoney = amounts[billionaire];
+            spendingState.cart = [];
+            
+            updateShoppingDisplay();
+            showNotification(`Now spending ${billionaire.charAt(0).toUpperCase() + billionaire.slice(1)}'s money!`);
+        }
+
+        function renderSpendingItems() {
+            const container = document.getElementById('spending-items');
+            container.innerHTML = spendingState.items.map(item => `
+                <div class="glass p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">${item.icon}</div>
+                    <h6 class="font-semibold">${item.name}</h6>
+                    <div class="text-lg font-bold text-green-400">$${item.price.toLocaleString()}</div>
+                    <div class="mt-3 space-x-2">
+                        <button onclick="buyItem('${item.name}', ${item.price})" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700">Buy</button>
+                        <button onclick="buyMultiple('${item.name}', ${item.price}, 10)" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">Buy 10</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function buyItem(itemName, price) {
+            if (spendingState.remainingMoney >= price) {
+                spendingState.remainingMoney -= price;
+                const existingItem = spendingState.cart.find(item => item.name === itemName);
+                
+                if (existingItem) {
+                    existingItem.quantity++;
+                } else {
+                    spendingState.cart.push({ name: itemName, price, quantity: 1 });
+                }
+                
+                updateShoppingDisplay();
+                addXP(5);
+            }
+        }
+
+        function buyMultiple(itemName, price, quantity) {
+            const totalCost = price * quantity;
+            if (spendingState.remainingMoney >= totalCost) {
+                spendingState.remainingMoney -= totalCost;
+                const existingItem = spendingState.cart.find(item => item.name === itemName);
+                
+                if (existingItem) {
+                    existingItem.quantity += quantity;
+                } else {
+                    spendingState.cart.push({ name: itemName, price, quantity });
+                }
+                
+                updateShoppingDisplay();
+                addXP(quantity);
+            }
+        }
+
+        function updateShoppingDisplay() {
+            document.getElementById('remaining-money').textContent = spendingState.remainingMoney.toLocaleString();
+            
+            const cartContainer = document.getElementById('shopping-cart');
+            if (spendingState.cart.length === 0) {
+                cartContainer.innerHTML = '<p class="text-sm opacity-80">Your purchases will appear here...</p>';
+            } else {
+                cartContainer.innerHTML = spendingState.cart.map(item => 
+                    `<div class="flex justify-between items-center">
+                        <span>${item.name} x${item.quantity}</span>
+                        <span>$${(item.price * item.quantity).toLocaleString()}</span>
+                    </div>`
+                ).join('');
+            }
+        }
+
+        // Achievement system
+        function checkAchievements() {
+            const achievements = [
+                { id: 'first-game', name: 'First Steps', description: 'Play your first game', condition: () => gameState.gamesPlayed.size >= 1 },
+                { id: 'game-explorer', name: 'Game Explorer', description: 'Play 5 different games', condition: () => gameState.gamesPlayed.size >= 5 },
+                { id: 'dedicated-player', name: 'Dedicated Player', description: 'Play 10 different games', condition: () => gameState.gamesPlayed.size >= 10 },
+                { id: 'city-planner', name: 'City Planner', description: 'Build a city with 100+ population', condition: () => cityState.population >= 100 },
+                { id: 'time-traveler', name: 'Time Traveler', description: 'Visit 3 different eras', condition: () => timeMachineState.visitedEras.length >= 3 },
+                { id: 'pet-lover', name: 'Pet Lover', description: 'Adopt 3 pets', condition: () => petState.pets.length >= 3 },
+                { id: 'composer', name: 'Composer', description: 'Create a composition with 10+ notes', condition: () => musicState.composition.length >= 10 },
+                { id: 'crafter', name: 'Master Crafter', description: 'Discover 10 elements', condition: () => craftState.discovered.length >= 10 },
+                { id: 'big-spender', name: 'Big Spender', description: 'Spend $1 billion', condition: () => (100000000000 - spendingState.remainingMoney) >= 1000000000 }
+            ];
+            
+            achievements.forEach(achievement => {
+                if (!gameState.achievements.includes(achievement.id) && achievement.condition()) {
+                    gameState.achievements.push(achievement.id);
+                    showNotification(`🏆 Achievement Unlocked: ${achievement.name}`);
+                    addXP(100);
+                }
+            });
+        }
+
+        // XP and leveling system
+        function addXP(amount) {
+            gameState.xp += amount;
+            const newLevel = Math.floor(gameState.xp / 1000) + 1;
+            
+            if (newLevel > gameState.level) {
+                gameState.level = newLevel;
+                showNotification(`🎉 Level Up! You are now level ${newLevel}`);
+            }
+            
+            updateDashboard();
+            saveGameState();
+        }
+
+        // Dashboard updates
+        function updateDashboard() {
+            // Update stats
+            document.getElementById('total-playtime').textContent = formatPlaytime(gameState.playtime);
+            document.getElementById('games-played').textContent = gameState.gamesPlayed.size;
+            document.getElementById('achievements-count').textContent = gameState.achievements.length;
+            document.getElementById('user-level').textContent = gameState.level;
+            
+            // Update charts
+            updateActivityChart();
+            updateGamesChart();
+            updateRecentActivity();
+            updateRecentAchievements();
+        }
+
+        function formatPlaytime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}h ${mins}m`;
+        }
+
+        function updateActivityChart() {
+            const ctx = document.getElementById('activityChart');
+            if (!ctx) return;
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Minutes Played',
+                        data: [30, 45, 60, 35, 80, 120, 90],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function updateGamesChart() {
+            const ctx = document.getElementById('gamesChart');
+            if (!ctx) return;
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Simulation', 'Creative', 'Puzzle', 'Adventure'],
+                    datasets: [{
+                        data: [30, 25, 25, 20],
+                        backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        function updateRecentActivity() {
+            const container = document.getElementById('recent-activity');
+            const activities = [
+                'Played City Builder Simulator',
+                'Discovered new element in Infinite Craft',
+                'Adopted a virtual pet',
+                'Created a musical composition',
+                'Traveled to Medieval era'
+            ];
+            
+            container.innerHTML = activities.map(activity => 
+                `<div class="flex items-center space-x-2 mb-2">
+                    <i class="fas fa-clock text-blue-400"></i>
+                    <span class="text-sm">${activity}</span>
+                </div>`
+            ).join('');
+        }
+
+        function updateRecentAchievements() {
+            const container = document.getElementById('recent-achievements');
+            const recentAchievements = gameState.achievements.slice(-5);
+            
+            if (recentAchievements.length === 0) {
+                container.innerHTML = '<p class="text-sm opacity-80">No achievements yet. Keep playing!</p>';
+            } else {
+                container.innerHTML = recentAchievements.map(achievementId => 
+                    `<div class="achievement-badge">${achievementId.replace('-', ' ')}</div>`
+                ).join('');
+            }
+        }
+
+        // Leaderboard
+        function updateLeaderboard() {
+            updateTopPlayers();
+            updateGameChampions();
+        }
+
+        function updateTopPlayers() {
+            const container = document.getElementById('top-players');
+            const players = [
+                { name: 'You', level: gameState.level, xp: gameState.xp },
+                { name: 'Alex', level: 15, xp: 14500 },
+                { name: 'Sarah', level: 12, xp: 11200 },
+                { name: 'Mike', level: 10, xp: 9800 },
+                { name: 'Emma', level: 8, xp: 7600 }
+            ].sort((a, b) => b.xp - a.xp);
+            
+            container.innerHTML = players.map((player, index) => 
+                `<div class="leaderboard-item">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-lg font-bold">#${index + 1}</span>
+                        <span>${player.name}</span>
+                    </div>
+                    <div class="text-right">
+                        <div>Level ${player.level}</div>
+                        <div class="text-sm opacity-80">${player.xp} XP</div>
+                    </div>
+                </div>`
+            ).join('');
+        }
+
+        function updateGameChampions() {
+            const container = document.getElementById('game-champions');
+            const champions = [
+                { game: 'City Builder', player: 'You', score: cityState.population },
+                { game: 'Time Machine', player: 'Alex', score: 6 },
+                { game: 'Virtual Pets', player: 'Sarah', score: 5 },
+                { game: 'Music Composer', player: 'Mike', score: 15 },
+                { game: 'Infinite Craft', player: 'Emma', score: 25 }
+            ];
+            
+            container.innerHTML = champions.map(champion => 
+                `<div class="leaderboard-item">
+                    <div>
+                        <div class="font-semibold">${champion.game}</div>
+                        <div class="text-sm opacity-80">${champion.player}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold">${champion.score}</div>
+                    </div>
+                </div>`
+            ).join('');
+        }
+
+        // Profile
+        function updateProfile() {
+            document.getElementById('profile-name').textContent = gameState.currentUser;
+            document.getElementById('profile-level').textContent = gameState.level;
+            
+            updateProfileAchievements();
+            updateProfileStats();
+        }
+
+        function updateProfileAchievements() {
+            const container = document.getElementById('profile-achievements');
+            const allAchievements = [
+                { id: 'first-game', name: 'First Steps', icon: '🎮' },
+                { id: 'game-explorer', name: 'Game Explorer', icon: '🗺️' },
+                { id: 'dedicated-player', name: 'Dedicated Player', icon: '⭐' },
+                { id: 'city-planner', name: 'City Planner', icon: '🏙️' },
+                { id: 'time-traveler', name: 'Time Traveler', icon: '⏰' },
+                { id: 'pet-lover', name: 'Pet Lover', icon: '🐾' },
+                { id: 'composer', name: 'Composer', icon: '🎵' },
+                { id: 'crafter', name: 'Master Crafter', icon: '⚗️' },
+                { id: 'big-spender', name: 'Big Spender', icon: '💰' }
+            ];
+            
+            container.innerHTML = allAchievements.map(achievement => {
+                const earned = gameState.achievements.includes(achievement.id);
+                return `<div class="text-center p-3 rounded-lg ${earned ? 'bg-yellow-600' : 'bg-gray-600 opacity-50'}">
+                    <div class="text-2xl mb-1">${achievement.icon}</div>
+                    <div class="text-xs">${achievement.name}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function updateProfileStats() {
+            const container = document.getElementById('profile-stats');
+            const stats = [
+                { label: 'Total Games Played', value: gameState.gamesPlayed.size },
+                { label: 'Total Playtime', value: formatPlaytime(gameState.playtime) },
+                { label: 'Achievements Earned', value: gameState.achievements.length },
+                { label: 'Current Level', value: gameState.level },
+                { label: 'Total XP', value: gameState.xp },
+                { label: 'Cities Built', value: cityState.population > 0 ? 1 : 0 },
+                { label: 'Eras Visited', value: timeMachineState.visitedEras.length },
+                { label: 'Pets Adopted', value: petState.pets.length },
+                { label: 'Elements Discovered', value: craftState.discovered.length }
+            ];
+            
+            container.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                ${stats.map(stat => `
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-400">${stat.value}</div>
+                        <div class="text-sm opacity-80">${stat.label}</div>
+                    </div>
+                `).join('')}
+            </div>`;
+        }
+
+        // Notification system
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            
+            text.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Search and filter
+        function setupSearchAndFilter() {
+            const searchInput = document.getElementById('game-search');
+            const filterSelect = document.getElementById('game-filter');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', filterGames);
+            }
+            
+            if (filterSelect) {
+                filterSelect.addEventListener('change', filterGames);
+            }
+        }
+
+        function filterGames() {
+            const searchTerm = document.getElementById('game-search')?.value.toLowerCase() || '';
+            const selectedCategory = document.getElementById('game-filter')?.value || 'all';
+            
+            const filteredGames = games.filter(game => {
+                const matchesSearch = game.title.toLowerCase().includes(searchTerm) || 
+                                    game.description.toLowerCase().includes(searchTerm);
+                const matchesCategory = selectedCategory === 'all' || game.category === selectedCategory;
+                
+                return matchesSearch && matchesCategory;
+            });
+            
+            // Re-render filtered games
+            const newGames = filteredGames.filter(game => game.isNew);
+            const allGames = filteredGames.filter(game => !game.isNew);
+            
+            const newGamesGrid = document.getElementById('new-games-grid');
+            const gamesGrid = document.getElementById('games-grid');
+            
+            if (newGamesGrid) newGamesGrid.innerHTML = newGames.map(game => createGameCard(game)).join('');
+            if (gamesGrid) gamesGrid.innerHTML = allGames.map(game => createGameCard(game)).join('');
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved state
+            loadGameState();
+            
+            // Set initial theme
+            if (gameState.currentTheme === 'light') {
+                toggleTheme();
+            }
+            
+            // Initialize dashboard
+            updateDashboard();
+            
+            // Setup event listeners
+            setupSearchAndFilter();
+            
+            // Add playtime tracking
+            setInterval(() => {
+                gameState.playtime++;
+                saveGameState();
+            }, 60000); // Every minute
+            
+            // Start with games tab for new users
+            if (gameState.gamesPlayed.size === 0) {
+                showTab('games');
+            }
+            
+            console.log('🎮 FunSpark initialized successfully!');
+        });
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('game-modal');
+            if (e.target === modal) {
+                closeGameModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeGameModal();
+            }
+        });
+    </script>
+</body>
+</html>
